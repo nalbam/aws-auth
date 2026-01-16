@@ -1,0 +1,102 @@
+{
+  "aws_iam_identity_center": {
+    "description": "AWS IAM Identity Center configuration for Auth0 SAML integration",
+    "identity_source": "External Identity Provider (SAML 2.0)",
+    "configuration": {
+      "idp_metadata_url": "https://YOUR_AUTH0_DOMAIN/samlp/metadata?connection=github",
+      "idp_sign_in_url": "https://YOUR_AUTH0_DOMAIN/samlp/YOUR_CLIENT_ID",
+      "idp_issuer": "urn:YOUR_AUTH0_DOMAIN",
+      "idp_certificate": "Obtained from Auth0 SAML metadata",
+      "service_provider": {
+        "entity_id": "https://signin.aws.amazon.com/saml",
+        "acs_url": "https://YOUR_REGION.signin.aws.amazon.com/saml",
+        "identity_center_acs": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
+      },
+      "attribute_mappings": [
+        {
+          "saml_attribute": "Subject",
+          "identity_center_attribute": "Subject",
+          "required": true,
+          "notes": "Usually mapped to email from NameID"
+        },
+        {
+          "saml_attribute": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+          "identity_center_attribute": "email",
+          "required": true,
+          "notes": "User's email address"
+        },
+        {
+          "saml_attribute": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+          "identity_center_attribute": "name",
+          "required": false,
+          "notes": "User's display name"
+        },
+        {
+          "saml_attribute": "https://aws.amazon.com/SAML/Attributes/RoleSessionName",
+          "identity_center_attribute": "userName",
+          "required": false,
+          "notes": "Username for AWS session"
+        },
+        {
+          "saml_attribute": "https://aws.amazon.com/SAML/Attributes/Groups",
+          "identity_center_attribute": "groups",
+          "required": false,
+          "notes": "Group memberships from GitHub organizations/teams"
+        }
+      ]
+    },
+    "permission_sets": {
+      "examples": [
+        {
+          "name": "AdminAccess",
+          "description": "Full administrator access",
+          "managed_policies": ["arn:aws:iam::aws:policy/AdministratorAccess"],
+          "session_duration": "PT12H"
+        },
+        {
+          "name": "ReadOnlyAccess",
+          "description": "Read-only access to AWS services",
+          "managed_policies": ["arn:aws:iam::aws:policy/ReadOnlyAccess"],
+          "session_duration": "PT8H"
+        },
+        {
+          "name": "DeveloperAccess",
+          "description": "Developer access to specific services",
+          "managed_policies": [
+            "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+            "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+          ],
+          "session_duration": "PT8H"
+        }
+      ]
+    },
+    "group_assignments": {
+      "description": "Example group to permission set mappings",
+      "examples": [
+        {
+          "group": "github:your-org-name",
+          "aws_account": "123456789012",
+          "permission_set": "DeveloperAccess"
+        },
+        {
+          "group": "github:your-org-name/admins",
+          "aws_account": "123456789012",
+          "permission_set": "AdminAccess"
+        },
+        {
+          "group": "github:your-org-name/devops",
+          "aws_account": "123456789012",
+          "permission_set": "DeveloperAccess"
+        }
+      ]
+    },
+    "notes": [
+      "Replace YOUR_AUTH0_DOMAIN with your Auth0 tenant domain",
+      "Replace YOUR_REGION with your AWS region",
+      "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain",
+      "Groups must be created in IAM Identity Center before assignment",
+      "Users are auto-provisioned on first login (JIT provisioning)",
+      "Session duration is in ISO 8601 format (e.g., PT8H = 8 hours)"
+    ]
+  }
+}

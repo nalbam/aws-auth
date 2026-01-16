@@ -1,0 +1,46 @@
+{
+  "description": "Auth0 SAML application settings for AWS IAM Identity Center integration",
+  "application_type": "Regular Web Application (SAML)",
+  "saml_addon_configuration": {
+    "audience": "https://signin.aws.amazon.com/saml",
+    "recipient": "https://YOUR_REGION.signin.aws.amazon.com/saml",
+    "destination": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs",
+    "mappings": {
+      "email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+      "name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+      "nickname": "https://aws.amazon.com/SAML/Attributes/RoleSessionName"
+    },
+    "nameIdentifierFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+    "nameIdentifierProbes": [
+      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+    ],
+    "signatureAlgorithm": "rsa-sha256",
+    "digestAlgorithm": "sha256",
+    "lifetimeInSeconds": 3600,
+    "signResponse": true,
+    "typedAttributes": false,
+    "includeAttributeNameFormat": true,
+    "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+    "logout": {
+      "callback": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start",
+      "slo_enabled": false
+    }
+  },
+  "callbacks": [
+    "https://YOUR_REGION.signin.aws.amazon.com/saml",
+    "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
+  ],
+  "allowed_logout_urls": [
+    "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start"
+  ],
+  "connections": [
+    "github"
+  ],
+  "notes": [
+    "Replace YOUR_REGION with your AWS region (e.g., us-east-1)",
+    "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain",
+    "Get the actual callback URLs from AWS IAM Identity Center settings",
+    "The audience should remain https://signin.aws.amazon.com/saml for AWS",
+    "Session duration (lifetimeInSeconds) can be adjusted based on requirements"
+  ]
+}
