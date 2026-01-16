@@ -6,7 +6,9 @@
 
 - IAM Identity Center가 활성화된 AWS 계정
 - AWS IAM Identity Center에 대한 관리자 접근 권한
-- 2단계에서 얻은 Auth0 SAML 메타데이터 URL
+- 2단계에서 생성한 Auth0 SAML 애플리케이션
+
+> **참고**: 2단계와 이 단계는 상호 의존적입니다. 이 단계에서 AWS 구성 중에 얻은 정보(ACS URL, Audience 등)를 2단계의 Auth0 설정에 다시 업데이트해야 합니다.
 
 ## 단계
 
@@ -34,31 +36,46 @@
 **옵션 1: 메타데이터 파일 업로드**
 1. Auth0에서 메타데이터 다운로드:
    ```
-   https://YOUR_AUTH0_DOMAIN/samlp/metadata?connection=github
+   https://YOUR_AUTH0_DOMAIN/samlp/metadata/YOUR_CLIENT_ID
    ```
+   - `YOUR_AUTH0_DOMAIN`: Auth0 테넌트 도메인
+   - `YOUR_CLIENT_ID`: 2단계에서 생성한 애플리케이션의 Client ID
 2. `auth0-metadata.xml`로 저장
 3. 파일 업로드
 
 **옵션 2: 메타데이터 URL 입력**
-1. Auth0 메타데이터 URL 입력:
+1. Auth0 메타데이터 URL 직접 입력:
    ```
-   https://YOUR_AUTH0_DOMAIN/samlp/metadata?connection=github
+   https://YOUR_AUTH0_DOMAIN/samlp/metadata/YOUR_CLIENT_ID
    ```
 
-#### B. Service Provider 메타데이터
+#### B. Service Provider 메타데이터 (중요!)
 
-AWS가 Service Provider 메타데이터를 표시합니다. 이 값을 복사하여 Auth0를 업데이트해야 합니다:
+AWS가 Service Provider 메타데이터를 표시합니다. **이 정보를 반드시 기록하세요**:
 
-1. **AWS sign-in URL**: ACS URL 복사 (예: `https://YOUR_REGION.signin.aws.amazon.com/saml`)
-2. **AWS audience URI**: 일반적으로 `https://signin.aws.amazon.com/saml`
-3. **AWS IdP entity ID**: 이 값 복사
+1. **IAM Identity Center Assertion Consumer Service (ACS) URL**:
+   ```
+   https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
+   ```
+   예: `https://d-1234567890.awsapps.com/start/saml2/acs`
 
-**Auth0 SAML 설정 업데이트:**
-- Auth0 Dashboard → Applications → AWS IAM Identity Center → Addons → SAML2 Web App으로 돌아가기
-- AWS에서 가져온 올바른 `destination`과 `audience`로 Settings JSON 업데이트
-- **Save** 클릭
+2. **IAM Identity Center issuer URL**:
+   ```
+   https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start
+   ```
 
-4. AWS 콘솔에서 **Next** 클릭
+3. 이 값들을 기록해두세요 - **2단계로 돌아가서 Auth0 SAML 설정을 업데이트해야 합니다**.
+
+#### Auth0 설정 업데이트 (2단계로 돌아가기)
+
+1. Auth0 Dashboard → Applications → AWS IAM Identity Center → Addons → SAML2 Web App
+2. **Application Callback URL**을 ACS URL로 업데이트
+3. Settings JSON의 `destination`과 `audience` 값을 업데이트:
+   - `destination`: ACS URL
+   - `audience`: IAM Identity Center issuer URL
+4. **Save** 클릭
+
+5. AWS 콘솔로 돌아와서 **Next** 클릭
 
 ### 4. 속성 매핑 구성
 
@@ -113,8 +130,17 @@ Auth0에서 AWS IAM Identity Center로 SAML 속성 매핑:
 ### 7. 사용자 포털 URL 가져오기
 
 1. IAM Identity Center에서 **Dashboard**로 이동
-2. **User portal URL** 복사 (예: `https://d-xxxxxxxxxx.awsapps.com/start`)
+2. **User portal URL** 복사 (예: `https://d-1234567890.awsapps.com/start`)
 3. 이 URL을 사용자와 공유 - 로그인 위치
+
+## 구성 완료 체크리스트
+
+이 단계를 완료한 후 다음을 확인하세요:
+
+- [ ] AWS IAM Identity Center가 외부 IdP로 구성됨
+- [ ] Auth0 SAML 설정이 AWS ACS URL 및 Audience로 업데이트됨
+- [ ] 최소 하나의 권한 세트가 생성됨
+- [ ] 사용자 포털 URL을 기록함
 
 ## 초기 구성 테스트
 
@@ -144,7 +170,7 @@ AWS IAM Identity Center는 외부 IdP와 함께 Just-In-Time (JIT) 프로비저�
 ### "Invalid SAML Response" 오류
 
 - Auth0와 AWS 모두에서 메타데이터가 올바르게 구성되었는지 확인
-- 콜백 URL이 정확히 일치하는지 확인
+- ACS URL이 정확히 일치하는지 확인
 - SAML 응답이 서명되었는지 확인
 
 ### 사용자가 프로비저닝되지 않음

@@ -147,7 +147,7 @@ exports.onExecutePostLogin = async (event, api) => {
         `https://api.github.com/orgs/${org.login}/teams`,
         {
           headers: {
-            'Authorization': `token ${token}`,
+            'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github.v3+json'
           }
         }
@@ -162,7 +162,7 @@ exports.onExecutePostLogin = async (event, api) => {
             `https://api.github.com/orgs/${org.login}/teams/${team.slug}/memberships/${githubUsername}`,
             {
               headers: {
-                'Authorization': `token ${token}`,
+                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/vnd.github.v3+json'
               }
             }

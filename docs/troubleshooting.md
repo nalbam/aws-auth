@@ -216,7 +216,7 @@ Auth0 + GitHub + AWS IAM Identity Center 통합에 대한 일반적인 문제와
    ```javascript
    // Auth0 Action에서 저장된 토큰 사용
    const token = event.secrets.GITHUB_ACCESS_TOKEN;
-   headers: { 'Authorization': `token ${token}` }
+   headers: { 'Authorization': `Bearer ${token}` }
    ```
 
 2. **캐싱 구현:**

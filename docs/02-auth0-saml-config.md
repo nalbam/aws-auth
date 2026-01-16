@@ -2,6 +2,14 @@
 
 이 가이드에서는 AWS IAM Identity Center의 ID 제공자(IdP)로 작동할 SAML 애플리케이션을 Auth0에서 생성하는 방법을 안내합니다.
 
+## 사전 요구사항
+
+- Auth0 계정 ([auth0.com](https://auth0.com)에서 가입)
+- 1단계에서 구성한 GitHub 연결
+- AWS IAM Identity Center가 활성화된 AWS 계정
+
+> **참고**: 이 단계와 3단계(AWS IAM Identity Center 구성)는 상호 의존적입니다. 먼저 이 단계에서 기본 SAML 애플리케이션을 생성한 후, 3단계에서 AWS 구성을 완료하고, 다시 이 단계로 돌아와 정확한 콜백 URL을 업데이트해야 합니다.
+
 ## 단계
 
 ### 1. 새 애플리케이션 생성
@@ -25,24 +33,22 @@ SAML 구성 대화상자에서:
 
 #### Application Callback URL
 
-```
-https://YOUR_AWS_REGION.signin.aws.amazon.com/saml
-```
+AWS IAM Identity Center를 사용하는 경우 **ACS(Assertion Consumer Service) URL**을 입력합니다:
 
-`YOUR_AWS_REGION`을 AWS 리전으로 교체 (예: `us-east-1`, `eu-west-1`, `ap-northeast-2` 등).
-
-AWS IAM Identity Center의 경우:
 ```
 https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 ```
 
-이 URL은 AWS IAM Identity Center에서 가져옵니다 (3단계에서 다룸).
+- `YOUR_IDENTITY_CENTER_DOMAIN`: AWS IAM Identity Center 도메인 (예: `d-1234567890`)
+- 이 URL은 3단계에서 AWS IAM Identity Center 구성 시 확인할 수 있습니다
+
+> **중요**: 처음에는 플레이스홀더 값을 입력하고, 3단계 완료 후 실제 URL로 업데이트하세요.
 
 #### Settings (JSON)
 
 ```json
 {
-  "audience": "https://signin.aws.amazon.com/saml",
+  "audience": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start",
   "mappings": {
     "email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
     "name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
@@ -62,17 +68,20 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 }
 ```
 
-**중요**: `destination`을 실제 AWS IAM Identity Center 도메인으로 업데이트하세요.
+**중요**: `YOUR_IDENTITY_CENTER_DOMAIN`을 실제 AWS IAM Identity Center 도메인으로 교체하세요 (예: `d-1234567890`).
 
 4. **Enable**을 클릭한 후 **Save**
 
 ### 4. SAML 메타데이터 다운로드
 
 1. SAML2 Web App 애드온 구성에서 **Usage**까지 스크롤
-2. **Identity Provider Metadata** URL 복사 또는 다운로드:
+2. **Identity Provider Metadata** URL 복사:
    ```
-   https://YOUR_AUTH0_DOMAIN/samlp/metadata?connection=YOUR_CONNECTION
+   https://YOUR_AUTH0_DOMAIN/samlp/metadata/YOUR_CLIENT_ID
    ```
+   - `YOUR_AUTH0_DOMAIN`: Auth0 테넌트 도메인
+   - `YOUR_CLIENT_ID`: 생성한 애플리케이션의 Client ID
+
 3. 이 URL 저장 - AWS IAM Identity Center 구성에 필요
 
 또는 메타데이터 URL을 방문하여 XML을 직접 다운로드.
@@ -87,7 +96,7 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 ### 6. 애플리케이션 설정 구성
 
 1. **Settings** 탭에서:
-   - **Allowed Callback URLs**: AWS IAM Identity Center 콜백 URL 추가
+   - **Allowed Callback URLs**: AWS IAM Identity Center ACS URL 추가
    - **Allowed Logout URLs**: AWS IAM Identity Center 도메인 추가
    - **Allowed Web Origins**: AWS IAM Identity Center 도메인 추가
 
@@ -95,6 +104,14 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
    - 문제 발생 시 **OIDC Conformant** 비활성화
 
 3. **Save Changes** 클릭
+
+## 3단계 완료 후 업데이트
+
+AWS IAM Identity Center 구성(3단계) 완료 후 다음 값을 업데이트해야 합니다:
+
+1. **Application Callback URL**: 실제 ACS URL로 변경
+2. **Settings JSON**: `audience`와 `destination` 값을 실제 값으로 변경
+3. **Allowed Callback URLs**: 실제 ACS URL로 업데이트
 
 ## SAML 어설션 예제
 
@@ -125,7 +142,7 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 
 ### "Invalid SAML Response" 오류
 
-- 콜백 URL이 정확히 일치하는지 확인
+- ACS URL이 정확히 일치하는지 확인
 - 서명 알고리즘이 `rsa-sha256`인지 확인
 - SAML 응답이 서명되어 있는지 확인 (`signResponse: true`)
 
@@ -143,3 +160,5 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 ## 다음 단계
 
 [3단계: AWS IAM Identity Center 구성](03-aws-identity-center.md)으로 진행
+
+> **리마인더**: 3단계 완료 후 이 문서의 "3단계 완료 후 업데이트" 섹션을 참조하여 설정을 업데이트하세요.

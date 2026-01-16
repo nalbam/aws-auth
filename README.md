@@ -32,18 +32,26 @@ Auth0는 중간 ID 제공자로서 다음 역할을 수행합니다:
 
 ```
 .
-├── docs/                           # 단계별 설정 문서
-│   ├── 01-github-connection.md     # Auth0에서 GitHub OAuth 설정
-│   ├── 02-auth0-saml-config.md     # Auth0 SAML 애플리케이션
-│   ├── 03-aws-identity-center.md   # AWS IAM Identity Center 구성
-│   ├── 04-attribute-mappings.md    # 사용자 속성 매핑
-│   └── 05-testing.md               # 흐름 테스트
-├── terraform/                      # Infrastructure as Code (선택사항)
-│   ├── auth0/                      # Auth0 Terraform 구성
-│   └── aws/                        # AWS IAM Identity Center 구성
-└── examples/                       # 구성 예제
-    ├── auth0-rules.js              # 속성 매핑을 위한 Auth0 Rules
-    └── saml-metadata.xml           # SAML 메타데이터 예제
+├── docs/                              # 단계별 설정 문서
+│   ├── 01-github-connection.md        # Auth0에서 GitHub OAuth 설정
+│   ├── 02-auth0-saml-config.md        # Auth0 SAML 애플리케이션
+│   ├── 03-aws-identity-center.md      # AWS IAM Identity Center 구성
+│   ├── 04-attribute-mappings.md       # 사용자 속성 매핑
+│   ├── 05-testing.md                  # 통합 테스트
+│   ├── architecture.md                # 아키텍처 다이어그램
+│   └── troubleshooting.md             # 문제 해결 가이드
+├── terraform/                         # Infrastructure as Code (선택사항)
+│   ├── auth0/                         # Auth0 Terraform 구성
+│   │   ├── main.tf
+│   │   ├── terraform.tfvars.example
+│   │   └── actions/
+│   │       └── github-groups.js       # GitHub 그룹 매핑 Action
+│   └── aws/                           # AWS IAM Identity Center 구성
+│       └── main.tf
+└── examples/                          # 구성 예제
+    ├── auth0-action.js                # 속성 매핑을 위한 Auth0 Action
+    ├── auth0-saml-settings.json       # Auth0 SAML 설정 템플릿
+    └── aws-identity-center-config.json # AWS IAM Identity Center 구성 템플릿
 ```
 
 ## 기능
@@ -106,7 +114,7 @@ Auth0는 중간 ID 제공자로서 다음 역할을 수행합니다:
 
 ## 비용
 
-- **Auth0**: 무료 티어는 최대 7,000명의 활성 사용자 지원
+- **Auth0**: 무료 티어는 월 최대 7,500명의 활성 사용자 지원 (B2C 기준)
 - **AWS IAM Identity Center**: 추가 비용 없음 (AWS 계정에 포함)
 - **GitHub**: 기존 GitHub 계정/조직
 
