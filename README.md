@@ -61,6 +61,11 @@ npm install
    openssl rand -hex 32
    ```
 
+3. Verify your configuration:
+   ```bash
+   npm run check-env
+   ```
+
 ### 5. Run the development server
 
 ```bash
