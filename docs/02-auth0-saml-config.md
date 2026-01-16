@@ -1,27 +1,27 @@
-# Step 2: Configure SAML Application in Auth0
+# 2단계: Auth0에서 SAML 애플리케이션 구성
 
-This guide walks you through creating a SAML application in Auth0 that will act as the Identity Provider (IdP) for AWS IAM Identity Center.
+이 가이드에서는 AWS IAM Identity Center의 ID 제공자(IdP)로 작동할 SAML 애플리케이션을 Auth0에서 생성하는 방법을 안내합니다.
 
-## Steps
+## 단계
 
-### 1. Create a New Application
+### 1. 새 애플리케이션 생성
 
-1. In the [Auth0 Dashboard](https://manage.auth0.com), navigate to **Applications** → **Applications**
-2. Click **Create Application**
-3. Configure:
+1. [Auth0 Dashboard](https://manage.auth0.com)에서 **Applications** → **Applications**로 이동
+2. **Create Application** 클릭
+3. 구성:
    - **Name**: `AWS IAM Identity Center`
    - **Application Type**: **Regular Web Application**
-4. Click **Create**
+4. **Create** 클릭
 
-### 2. Configure Application as SAML IdP
+### 2. 애플리케이션을 SAML IdP로 구성
 
-1. Go to the **Addons** tab
-2. Enable **SAML2 Web App**
-3. Click on **SAML2 Web App** to configure
+1. **Addons** 탭으로 이동
+2. **SAML2 Web App** 활성화
+3. **SAML2 Web App**을 클릭하여 구성
 
-### 3. Configure SAML Settings
+### 3. SAML 설정 구성
 
-In the SAML configuration dialog:
+SAML 구성 대화상자에서:
 
 #### Application Callback URL
 
@@ -29,14 +29,14 @@ In the SAML configuration dialog:
 https://YOUR_AWS_REGION.signin.aws.amazon.com/saml
 ```
 
-Replace `YOUR_AWS_REGION` with your AWS region (e.g., `us-east-1`, `eu-west-1`)
+`YOUR_AWS_REGION`을 AWS 리전으로 교체 (예: `us-east-1`, `eu-west-1`, `ap-northeast-2` 등).
 
-For AWS IAM Identity Center, use:
+AWS IAM Identity Center의 경우:
 ```
 https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 ```
 
-Get this URL from AWS IAM Identity Center (covered in Step 3).
+이 URL은 AWS IAM Identity Center에서 가져옵니다 (3단계에서 다룸).
 
 #### Settings (JSON)
 
@@ -62,43 +62,43 @@ Get this URL from AWS IAM Identity Center (covered in Step 3).
 }
 ```
 
-**Important**: Update `destination` with your actual AWS IAM Identity Center domain.
+**중요**: `destination`을 실제 AWS IAM Identity Center 도메인으로 업데이트하세요.
 
-4. Click **Enable** and then **Save**
+4. **Enable**을 클릭한 후 **Save**
 
-### 4. Download SAML Metadata
+### 4. SAML 메타데이터 다운로드
 
-1. In the SAML2 Web App addon configuration, scroll down to **Usage**
-2. Copy or download the **Identity Provider Metadata** URL:
+1. SAML2 Web App 애드온 구성에서 **Usage**까지 스크롤
+2. **Identity Provider Metadata** URL 복사 또는 다운로드:
    ```
    https://YOUR_AUTH0_DOMAIN/samlp/metadata?connection=YOUR_CONNECTION
    ```
-3. Save this URL - you'll need it for AWS IAM Identity Center configuration
+3. 이 URL 저장 - AWS IAM Identity Center 구성에 필요
 
-Alternatively, download the XML directly by visiting the metadata URL.
+또는 메타데이터 URL을 방문하여 XML을 직접 다운로드.
 
-### 5. Enable GitHub Connection for This Application
+### 5. 이 애플리케이션에 GitHub 연결 활성화
 
-1. Go back to the Application settings (main page, not addon)
-2. Click on the **Connections** tab
-3. Under **Social**, enable **GitHub**
-4. Disable any other connections you don't want to use
+1. 애플리케이션 설정(메인 페이지, 애드온 아님)으로 돌아가기
+2. **Connections** 탭 클릭
+3. **Social**에서 **GitHub** 활성화
+4. 사용하지 않을 다른 연결 비활성화
 
-### 6. Configure Application Settings
+### 6. 애플리케이션 설정 구성
 
-1. In the **Settings** tab:
-   - **Allowed Callback URLs**: Add the AWS IAM Identity Center callback URL
-   - **Allowed Logout URLs**: Add your AWS IAM Identity Center domain
-   - **Allowed Web Origins**: Add your AWS IAM Identity Center domain
+1. **Settings** 탭에서:
+   - **Allowed Callback URLs**: AWS IAM Identity Center 콜백 URL 추가
+   - **Allowed Logout URLs**: AWS IAM Identity Center 도메인 추가
+   - **Allowed Web Origins**: AWS IAM Identity Center 도메인 추가
 
-2. Under **Advanced Settings** → **OAuth**:
-   - Disable **OIDC Conformant** if you encounter issues
+2. **Advanced Settings** → **OAuth**에서:
+   - 문제 발생 시 **OIDC Conformant** 비활성화
 
-3. Click **Save Changes**
+3. **Save Changes** 클릭
 
-## SAML Assertion Example
+## SAML 어설션 예제
 
-After configuration, Auth0 will generate SAML assertions like this:
+구성 후 Auth0는 다음과 같은 SAML 어설션을 생성합니다:
 
 ```xml
 <saml:Assertion>
@@ -121,25 +121,25 @@ After configuration, Auth0 will generate SAML assertions like this:
 </saml:Assertion>
 ```
 
-## Troubleshooting
+## 문제 해결
 
-### "Invalid SAML Response" Error
+### "Invalid SAML Response" 오류
 
-- Verify the callback URL matches exactly
-- Check that the signature algorithm is `rsa-sha256`
-- Ensure SAML response is signed (`signResponse: true`)
+- 콜백 URL이 정확히 일치하는지 확인
+- 서명 알고리즘이 `rsa-sha256`인지 확인
+- SAML 응답이 서명되어 있는지 확인 (`signResponse: true`)
 
-### Missing Attributes
+### 속성 누락
 
-- Check attribute mappings in Settings JSON
-- Verify user profile has the required attributes
-- May need to add custom claims via Auth0 Rules/Actions
+- Settings JSON의 속성 매핑 확인
+- 사용자 프로필에 필요한 속성이 있는지 확인
+- Auth0 Rules/Actions를 통해 커스텀 클레임 추가 필요할 수 있음
 
-### Clock Skew Issues
+### 시간 동기화 문제
 
-- Ensure all servers have synchronized time (NTP)
-- Adjust `lifetimeInSeconds` if needed (default: 3600)
+- 모든 서버의 시간이 동기화되어 있는지 확인 (NTP)
+- 필요시 `lifetimeInSeconds` 조정 (기본값: 3600)
 
-## Next Steps
+## 다음 단계
 
-Proceed to [Step 3: Configure AWS IAM Identity Center](03-aws-identity-center.md)
+[3단계: AWS IAM Identity Center 구성](03-aws-identity-center.md)으로 진행

@@ -1,189 +1,189 @@
-# Architecture Diagram
+# 아키텍처 다이어그램
 
-## Authentication Flow
+## 인증 흐름
 
 ```
 ┌──────────────┐
 │              │
-│   End User   │
+│   최종 사용자 │
 │              │
 └──────┬───────┘
-       │ 1. Access AWS Portal
+       │ 1. AWS 포털 접근
        │
        v
 ┌──────────────────────────────────┐
 │                                  │
 │   AWS IAM Identity Center        │
-│   (User Portal)                  │
+│   (사용자 포털)                   │
 │                                  │
 └──────────┬───────────────────────┘
-           │ 2. Redirect to Auth0
+           │ 2. Auth0로 리다이렉트
            │    (SAML SSO)
            v
 ┌──────────────────────────────────┐
 │                                  │
 │         Auth0 (IdP)              │
-│   - SAML Identity Provider       │
-│   - GitHub Connection            │
+│   - SAML ID 제공자               │
+│   - GitHub 연결                  │
 │                                  │
 └──────────┬───────────────────────┘
-           │ 3. Login with GitHub
+           │ 3. GitHub으로 로그인
            │
            v
 ┌──────────────────────────────────┐
 │                                  │
 │         GitHub OAuth             │
-│   - User Authentication          │
-│   - Organization Data            │
+│   - 사용자 인증                  │
+│   - 조직 데이터                  │
 │                                  │
 └──────────┬───────────────────────┘
-           │ 4. Return user profile
-           │    (email, orgs, teams)
+           │ 4. 사용자 프로필 반환
+           │    (이메일, 조직, 팀)
            v
 ┌──────────────────────────────────┐
 │         Auth0 (IdP)              │
-│   - Transform to SAML            │
-│   - Add group claims             │
-│   - Sign assertion               │
+│   - SAML로 변환                  │
+│   - 그룹 클레임 추가              │
+│   - 어설션 서명                  │
 └──────────┬───────────────────────┘
-           │ 5. SAML Response
+           │ 5. SAML 응답
            │
            v
 ┌──────────────────────────────────┐
 │   AWS IAM Identity Center        │
-│   - Validate SAML                │
-│   - Create/update user (JIT)     │
-│   - Assign groups                │
+│   - SAML 검증                    │
+│   - 사용자 생성/업데이트 (JIT)    │
+│   - 그룹 할당                    │
 └──────────┬───────────────────────┘
-           │ 6. Grant access
+           │ 6. 접근 권한 부여
            │
            v
 ┌──────────────────────────────────┐
 │                                  │
-│      AWS Accounts                │
-│   - AssumeRole via SSO           │
-│   - Based on Permission Sets     │
+│      AWS 계정                    │
+│   - SSO를 통한 AssumeRole        │
+│   - 권한 세트 기반               │
 │                                  │
 └──────────────────────────────────┘
 ```
 
-## Data Flow
+## 데이터 흐름
 
-### User Attributes Mapping
+### 사용자 속성 매핑
 
 ```
-GitHub Profile              Auth0 User Profile         SAML Assertion                 AWS User
+GitHub 프로필              Auth0 사용자 프로필        SAML 어설션                  AWS 사용자
 ├── email               →   email                  →   emailaddress              →   email
 ├── name                →   name                   →   name                      →   name
-├── login (username)    →   nickname               →   RoleSessionName           →   userName
-└── organizations[]     →   custom mapping         →   Groups[]                  →   groups[]
+├── login (사용자명)     →   nickname               →   RoleSessionName           →   userName
+└── organizations[]     →   커스텀 매핑             →   Groups[]                  →   groups[]
 ```
 
-### Group/Team Mapping Example
+### 그룹/팀 매핑 예제
 
 ```
-GitHub Organization         Auth0 Action              SAML Group                    AWS IAM Identity Center
-└── my-company          →   Transform             →   github:my-company         →   Group: github:my-company
-    ├── Team: admins    →   GitHub API call       →   github:my-company/admins  →   Group: github:my-company/admins
-    └── Team: devs      →   GitHub API call       →   github:my-company/devs    →   Group: github:my-company/devs
+GitHub 조직                 Auth0 Action              SAML 그룹                     AWS IAM Identity Center
+└── my-company          →   변환                  →   github:my-company         →   그룹: github:my-company
+    ├── Team: admins    →   GitHub API 호출       →   github:my-company/admins  →   그룹: github:my-company/admins
+    └── Team: devs      →   GitHub API 호출       →   github:my-company/devs    →   그룹: github:my-company/devs
 ```
 
-## Permission Model
+## 권한 모델
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                   AWS Organization                      │
 │                                                         │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────┐  │
-│  │ Account: Prod │  │ Account: Dev  │  │Account:...│  │
+│  │ 계정: Prod    │  │ 계정: Dev     │  │계정:...   │  │
 │  └───────┬───────┘  └───────┬───────┘  └─────┬─────┘  │
 │          │                  │                │         │
 └──────────┼──────────────────┼────────────────┼─────────┘
            │                  │                │
            │                  │                │
     ┌──────▼──────────────────▼────────────────▼──────┐
-    │      IAM Identity Center Permission Sets        │
+    │      IAM Identity Center 권한 세트              │
     │  ┌─────────────┐  ┌──────────┐  ┌──────────┐   │
     │  │AdminAccess  │  │DevAccess │  │ReadOnly  │   │
     │  └──────┬──────┘  └─────┬────┘  └────┬─────┘   │
     └─────────┼───────────────┼────────────┼──────────┘
               │               │            │
        ┌──────▼───────────────▼────────────▼──────┐
-       │         Group Assignments                │
+       │         그룹 할당                        │
        │  ┌───────────────────────────────────┐   │
        │  │ github:my-company/admins          │   │
-       │  │   → AdminAccess on Prod, Dev      │   │
+       │  │   → Prod, Dev에서 AdminAccess     │   │
        │  ├───────────────────────────────────┤   │
        │  │ github:my-company/devs            │   │
-       │  │   → DevAccess on Dev              │   │
+       │  │   → Dev에서 DevAccess             │   │
        │  ├───────────────────────────────────┤   │
        │  │ github:my-company                 │   │
-       │  │   → ReadOnly on all accounts      │   │
+       │  │   → 모든 계정에서 ReadOnly        │   │
        │  └───────────────────────────────────┘   │
        └──────────────────────────────────────────┘
 ```
 
-## Components
+## 구성 요소
 
-### Auth0 Configuration
+### Auth0 구성
 - **Social Connection**: GitHub OAuth
-- **SAML Application**: AWS IAM Identity Center
-- **Action/Rule**: Group mapping logic
-- **Users**: Synced from GitHub
+- **SAML 애플리케이션**: AWS IAM Identity Center
+- **Action/Rule**: 그룹 매핑 로직
+- **사용자**: GitHub에서 동기화
 
 ### AWS IAM Identity Center
-- **Identity Source**: External (SAML 2.0)
-- **Permission Sets**: Define AWS permissions
-- **Users**: JIT provisioned from SAML
-- **Groups**: Mapped from GitHub orgs/teams
-- **Assignments**: Link groups to permission sets + accounts
+- **ID 소스**: 외부 (SAML 2.0)
+- **권한 세트**: AWS 권한 정의
+- **사용자**: SAML에서 JIT 프로비저닝
+- **그룹**: GitHub 조직/팀에서 매핑
+- **할당**: 그룹을 권한 세트 + 계정에 연결
 
 ### GitHub
-- **OAuth App**: Authenticates users
-- **Organizations**: Used for group membership
-- **Teams**: Optional fine-grained access control
-- **User Attributes**: Provided to Auth0
+- **OAuth App**: 사용자 인증
+- **조직**: 그룹 멤버십에 사용
+- **팀**: 선택적 세밀한 접근 제어
+- **사용자 속성**: Auth0에 제공
 
-## Security Layers
+## 보안 계층
 
 ```
 ┌──────────────────────────────────────────────┐
-│ Layer 1: GitHub Authentication               │
-│  - MFA (if enabled)                          │
-│  - GitHub username/password or SSO           │
+│ 계층 1: GitHub 인증                           │
+│  - MFA (활성화된 경우)                        │
+│  - GitHub 사용자명/비밀번호 또는 SSO          │
 └──────────────┬───────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────┐
-│ Layer 2: GitHub Authorization                │
-│  - Organization membership                   │
-│  - OAuth scope approval                      │
+│ 계층 2: GitHub 권한 부여                      │
+│  - 조직 멤버십                               │
+│  - OAuth 스코프 승인                         │
 └──────────────┬───────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────┐
-│ Layer 3: Auth0 Policies                      │
-│  - Organization restrictions                 │
-│  - Custom rules/actions                      │
-│  - Rate limiting                             │
+│ 계층 3: Auth0 정책                           │
+│  - 조직 제한                                 │
+│  - 커스텀 Rules/Actions                      │
+│  - 속도 제한                                 │
 └──────────────┬───────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────┐
-│ Layer 4: SAML Assertion Validation           │
-│  - Signature verification                    │
-│  - Time-based validation                     │
-│  - Audience check                            │
+│ 계층 4: SAML 어설션 검증                      │
+│  - 서명 확인                                 │
+│  - 시간 기반 검증                            │
+│  - Audience 확인                             │
 └──────────────┬───────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────┐
-│ Layer 5: AWS IAM Identity Center             │
-│  - Group-based access control                │
-│  - Permission set policies                   │
-│  - Account-level restrictions                │
+│ 계층 5: AWS IAM Identity Center              │
+│  - 그룹 기반 접근 제어                        │
+│  - 권한 세트 정책                            │
+│  - 계정 수준 제한                            │
 └──────────────┬───────────────────────────────┘
                │
 ┌──────────────▼───────────────────────────────┐
-│ Layer 6: AWS IAM Permissions                 │
-│  - Service-level permissions                 │
-│  - Resource-level permissions                │
-│  - Condition-based access                    │
+│ 계층 6: AWS IAM 권한                          │
+│  - 서비스 수준 권한                          │
+│  - 리소스 수준 권한                          │
+│  - 조건 기반 접근                            │
 └──────────────────────────────────────────────┘
 ```
