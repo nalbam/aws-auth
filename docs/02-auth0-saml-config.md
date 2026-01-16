@@ -48,7 +48,7 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 
 ```json
 {
-  "audience": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start",
+  "audience": "https://signin.aws.amazon.com/saml",
   "mappings": {
     "email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
     "name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",

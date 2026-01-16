@@ -18,7 +18,7 @@ provider "aws" {
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "ap-northeast-2"
 }
 
 variable "identity_center_instance_arn" {
@@ -86,10 +86,10 @@ output "permission_set_arns" {
 # The AWS provider doesn't yet support configuring external identity sources via Terraform
 
 # Example AWS CLI commands for reference:
-# 
+#
 # # Get Identity Center instance details
 # aws sso-admin list-instances
-# 
+#
 # # Configure external identity provider (must be done manually via console or API)
 # # This involves uploading Auth0 SAML metadata
 #

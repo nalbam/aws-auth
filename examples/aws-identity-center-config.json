@@ -3,14 +3,13 @@
     "description": "AWS IAM Identity Center configuration for Auth0 SAML integration",
     "identity_source": "External Identity Provider (SAML 2.0)",
     "configuration": {
-      "idp_metadata_url": "https://YOUR_AUTH0_DOMAIN/samlp/metadata?connection=github",
+      "idp_metadata_url": "https://YOUR_AUTH0_DOMAIN/samlp/metadata/YOUR_CLIENT_ID",
       "idp_sign_in_url": "https://YOUR_AUTH0_DOMAIN/samlp/YOUR_CLIENT_ID",
       "idp_issuer": "urn:YOUR_AUTH0_DOMAIN",
       "idp_certificate": "Obtained from Auth0 SAML metadata",
       "service_provider": {
         "entity_id": "https://signin.aws.amazon.com/saml",
-        "acs_url": "https://YOUR_REGION.signin.aws.amazon.com/saml",
-        "identity_center_acs": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
+        "acs_url": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
       },
       "attribute_mappings": [
         {
@@ -92,8 +91,8 @@
     },
     "notes": [
       "Replace YOUR_AUTH0_DOMAIN with your Auth0 tenant domain",
-      "Replace YOUR_REGION with your AWS region",
-      "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain",
+      "Replace YOUR_CLIENT_ID with your Auth0 application client ID",
+      "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain (e.g., d-1234567890)",
       "Groups must be created in IAM Identity Center before assignment",
       "Users are auto-provisioned on first login (JIT provisioning)",
       "Session duration is in ISO 8601 format (e.g., PT8H = 8 hours)"

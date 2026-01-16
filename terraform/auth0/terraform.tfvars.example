@@ -1,15 +1,24 @@
-# Example terraform.tfvars file
-# Copy this to terraform.tfvars and fill in your values
-
 # Auth0 Configuration
-auth0_domain        = "your-tenant.auth0.com"
-auth0_client_id     = "YOUR_AUTH0_MGMT_CLIENT_ID"
-auth0_client_secret = "YOUR_AUTH0_MGMT_CLIENT_SECRET"
+# Copy this file to terraform.tfvars and fill in the values
 
-# GitHub OAuth App
-github_client_id     = "YOUR_GITHUB_OAUTH_CLIENT_ID"
-github_client_secret = "YOUR_GITHUB_OAUTH_CLIENT_SECRET"
+# Auth0 tenant domain (e.g., your-tenant.auth0.com)
+auth0_domain = "your-tenant.auth0.com"
 
-# AWS IAM Identity Center
+# Auth0 Management API credentials
+# Create a Machine-to-Machine application in Auth0 with Management API access
+auth0_client_id     = "your-auth0-management-client-id"
+auth0_client_secret = "your-auth0-management-client-secret"
+
+# GitHub OAuth App credentials
+# Create an OAuth App at: GitHub Settings -> Developer settings -> OAuth Apps
+github_client_id     = "your-github-oauth-client-id"
+github_client_secret = "your-github-oauth-client-secret"
+
+# AWS IAM Identity Center domain
+# Find this in AWS IAM Identity Center -> Settings -> Identity source
+# Format: d-xxxxxxxxxx.awsapps.com
 aws_identity_center_domain = "d-xxxxxxxxxx.awsapps.com"
-aws_region                 = "us-east-1"
+
+# Optional: List of allowed GitHub organizations
+# Leave empty to allow all organizations
+allowed_orgs = []

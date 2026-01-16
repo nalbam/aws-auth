@@ -3,7 +3,7 @@
   "application_type": "Regular Web Application (SAML)",
   "saml_addon_configuration": {
     "audience": "https://signin.aws.amazon.com/saml",
-    "recipient": "https://YOUR_REGION.signin.aws.amazon.com/saml",
+    "recipient": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs",
     "destination": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs",
     "mappings": {
       "email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
@@ -27,7 +27,6 @@
     }
   },
   "callbacks": [
-    "https://YOUR_REGION.signin.aws.amazon.com/saml",
     "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
   ],
   "allowed_logout_urls": [
@@ -37,9 +36,8 @@
     "github"
   ],
   "notes": [
-    "Replace YOUR_REGION with your AWS region (e.g., us-east-1)",
-    "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain",
-    "Get the actual callback URLs from AWS IAM Identity Center settings",
+    "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain (e.g., d-1234567890)",
+    "Get the actual ACS URL from AWS IAM Identity Center settings",
     "The audience should remain https://signin.aws.amazon.com/saml for AWS",
     "Session duration (lifetimeInSeconds) can be adjusted based on requirements"
   ]

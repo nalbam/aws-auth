@@ -49,10 +49,10 @@ variable "aws_identity_center_domain" {
   type        = string
 }
 
-variable "aws_region" {
-  description = "AWS region for IAM Identity Center"
-  type        = string
-  default     = "us-east-1"
+variable "allowed_orgs" {
+  description = "List of allowed GitHub organizations (optional)"
+  type        = list(string)
+  default     = []
 }
 
 # GitHub Social Connection
@@ -64,11 +64,15 @@ resource "auth0_connection" "github" {
     client_id     = var.github_client_id
     client_secret = var.github_client_secret
     scopes        = ["user:email", "read:org", "read:user"]
-    
+
     set_user_root_attributes = "on_first_login"
     non_persistent_attrs     = []
   }
+}
 
+# Enable GitHub connection for AWS IAM Identity Center client
+resource "auth0_connection_clients" "github_aws" {
+  connection_id   = auth0_connection.github.id
   enabled_clients = [auth0_client.aws_identity_center.id]
 }
 
@@ -79,7 +83,6 @@ resource "auth0_client" "aws_identity_center" {
   app_type    = "regular_web"
 
   callbacks = [
-    "https://${var.aws_region}.signin.aws.amazon.com/saml",
     "https://${var.aws_identity_center_domain}/start/saml2/acs"
   ]
 
@@ -95,8 +98,8 @@ resource "auth0_client" "aws_identity_center" {
 resource "auth0_client_addon_saml" "aws" {
   client_id = auth0_client.aws_identity_center.id
 
-  audience = "https://signin.aws.amazon.com/saml"
-  recipient = "https://${var.aws_region}.signin.aws.amazon.com/saml"
+  audience    = "https://signin.aws.amazon.com/saml"
+  recipient   = "https://${var.aws_identity_center_domain}/start/saml2/acs"
   destination = "https://${var.aws_identity_center_domain}/start/saml2/acs"
 
   mappings = {
@@ -153,7 +156,7 @@ resource "auth0_trigger_actions" "login_flow" {
 # Outputs
 output "auth0_saml_metadata_url" {
   description = "Auth0 SAML metadata URL for AWS configuration"
-  value       = "https://${var.auth0_domain}/samlp/metadata?connection=github"
+  value       = "https://${var.auth0_domain}/samlp/metadata/${auth0_client.aws_identity_center.client_id}"
 }
 
 output "auth0_saml_sso_url" {
