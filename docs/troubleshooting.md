@@ -24,8 +24,9 @@ Auth0 + GitHub + AWS IAM Identity Center 통합에 대한 일반적인 문제와
 
 # 2. 콜백 URL 확인
 # Auth0 SAML 설정에 다음이 있어야 함:
-# - destination: https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
-# AWS IAM Identity Center의 ACS URL과 일치해야 함
+# - audience: AWS 메타데이터의 entityID와 일치
+# - destination: AWS 메타데이터의 ACS URL과 일치
+# 예: https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/...
 
 # 3. 서명 설정 확인
 # Auth0 SAML 설정에 다음이 있어야 함:
@@ -71,7 +72,7 @@ Auth0 + GitHub + AWS IAM Identity Center 통합에 대한 일반적인 문제와
 3. **SAML 설정 확인:**
    ```json
    {
-     "nameIdentifierFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+     "nameIdentifierFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
      "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
    }
    ```

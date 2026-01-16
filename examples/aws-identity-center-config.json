@@ -8,8 +8,9 @@
       "idp_issuer": "urn:YOUR_AUTH0_DOMAIN",
       "idp_certificate": "Obtained from Auth0 SAML metadata",
       "service_provider": {
-        "entity_id": "https://signin.aws.amazon.com/saml",
-        "acs_url": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
+        "entity_id": "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/d-9b6753d2be",
+        "acs_url": "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/49434e2d4805a7b2-f152-44d2-9f6b-62b379a23c28",
+        "name_id_format": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
       },
       "attribute_mappings": [
         {
@@ -90,9 +91,9 @@
       ]
     },
     "notes": [
-      "Replace YOUR_AUTH0_DOMAIN with your Auth0 tenant domain",
-      "Replace YOUR_CLIENT_ID with your Auth0 application client ID",
-      "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain (e.g., d-1234567890)",
+      "Replace example values with your actual AWS IAM Identity Center SAML metadata values",
+      "entity_id: entityID from AWS metadata",
+      "acs_url: AssertionConsumerService Location from AWS metadata",
       "Groups must be created in IAM Identity Center before assignment",
       "Users are auto-provisioned on first login (JIT provisioning)",
       "Session duration is in ISO 8601 format (e.g., PT8H = 8 hours)"

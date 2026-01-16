@@ -2,15 +2,14 @@
   "description": "Auth0 SAML application settings for AWS IAM Identity Center integration",
   "application_type": "Regular Web Application (SAML)",
   "saml_addon_configuration": {
-    "audience": "https://signin.aws.amazon.com/saml",
-    "recipient": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs",
-    "destination": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs",
+    "audience": "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/d-9b6753d2be",
+    "destination": "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/49434e2d4805a7b2-f152-44d2-9f6b-62b379a23c28",
     "mappings": {
       "email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
       "name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
       "nickname": "https://aws.amazon.com/SAML/Attributes/RoleSessionName"
     },
-    "nameIdentifierFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+    "nameIdentifierFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
     "nameIdentifierProbes": [
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
     ],
@@ -18,27 +17,23 @@
     "digestAlgorithm": "sha256",
     "lifetimeInSeconds": 3600,
     "signResponse": true,
-    "typedAttributes": false,
     "includeAttributeNameFormat": true,
-    "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-    "logout": {
-      "callback": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start",
-      "slo_enabled": false
-    }
+    "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
   },
   "callbacks": [
-    "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs"
+    "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/49434e2d4805a7b2-f152-44d2-9f6b-62b379a23c28"
   ],
   "allowed_logout_urls": [
-    "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start"
+    "https://d-9b6753d2be.awsapps.com/start"
   ],
   "connections": [
     "github"
   ],
   "notes": [
-    "Replace YOUR_IDENTITY_CENTER_DOMAIN with your IAM Identity Center domain (e.g., d-1234567890)",
-    "Get the actual ACS URL from AWS IAM Identity Center settings",
-    "The audience should remain https://signin.aws.amazon.com/saml for AWS",
-    "Session duration (lifetimeInSeconds) can be adjusted based on requirements"
+    "Replace values with your actual AWS IAM Identity Center SAML metadata values",
+    "audience: entityID from AWS metadata",
+    "destination: AssertionConsumerService Location from AWS metadata",
+    "callbacks: Same as destination (ACS URL)",
+    "allowed_logout_urls: Your IAM Identity Center user portal URL"
   ]
 }

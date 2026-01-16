@@ -111,8 +111,10 @@ GitHub 팀 멤버십을 포함하려면 GitHub API를 통해 팀을 가져와야
 
 ### 2. Auth0에 토큰 저장
 
-1. Auth0 Dashboard에서 **Settings** → **Custom**으로 이동
-2. 시크릿 추가:
+1. Auth0 Dashboard에서 **Actions** → **Library**로 이동
+2. 생성한 Action을 클릭하여 편집
+3. 왼쪽 사이드바에서 **Secrets** (자물쇠 아이콘) 클릭
+4. **Add Secret** 클릭하여 시크릿 추가:
    - Key: `GITHUB_ACCESS_TOKEN`
    - Value: GitHub 토큰
 

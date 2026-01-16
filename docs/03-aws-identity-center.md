@@ -51,28 +51,29 @@
 
 #### B. Service Provider 메타데이터 (중요!)
 
-AWS가 Service Provider 메타데이터를 표시합니다. **이 정보를 반드시 기록하세요**:
+AWS가 Service Provider 메타데이터를 제공합니다. **SAML 메타데이터 XML 파일을 다운로드하여 다음 값을 확인하세요**:
 
-1. **IAM Identity Center Assertion Consumer Service (ACS) URL**:
+1. **entityID (audience)**:
    ```
-   https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
+   https://YOUR_REGION.signin.aws.amazon.com/platform/saml/YOUR_IDENTITY_CENTER_ID
    ```
-   예: `https://d-1234567890.awsapps.com/start/saml2/acs`
+   예: `https://ap-northeast-2.signin.aws.amazon.com/platform/saml/d-9b6753d2be`
 
-2. **IAM Identity Center issuer URL**:
+2. **AssertionConsumerService Location (ACS URL)**:
    ```
-   https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start
+   https://YOUR_REGION.signin.aws.amazon.com/platform/saml/acs/YOUR_ACS_UUID
    ```
+   예: `https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/49434e2d-...`
 
 3. 이 값들을 기록해두세요 - **2단계로 돌아가서 Auth0 SAML 설정을 업데이트해야 합니다**.
 
 #### Auth0 설정 업데이트 (2단계로 돌아가기)
 
 1. Auth0 Dashboard → Applications → AWS IAM Identity Center → Addons → SAML2 Web App
-2. **Application Callback URL**을 ACS URL로 업데이트
-3. Settings JSON의 `destination`과 `audience` 값을 업데이트:
-   - `destination`: ACS URL
-   - `audience`: IAM Identity Center issuer URL
+2. **Application Callback URL**을 메타데이터의 ACS URL로 업데이트
+3. Settings JSON 업데이트:
+   - `audience`: 메타데이터의 `entityID` 값 (예: `https://ap-northeast-2.signin.aws.amazon.com/platform/saml/d-9b6753d2be`)
+   - `destination`: 메타데이터의 ACS URL (예: `https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/...`)
 4. **Save** 클릭
 
 5. AWS 콘솔로 돌아와서 **Next** 클릭

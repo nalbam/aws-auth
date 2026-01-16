@@ -14,8 +14,24 @@ auth0_client_secret = "your-auth0-management-client-secret"
 github_client_id     = "your-github-oauth-client-id"
 github_client_secret = "your-github-oauth-client-secret"
 
-# AWS IAM Identity Center domain
-# Find this in AWS IAM Identity Center -> Settings -> Identity source
+# AWS Configuration
+# Download SAML metadata from AWS IAM Identity Center to get these values
+# Settings -> Identity source -> Actions -> View IdP configuration
+
+# AWS region (from metadata entityID)
+# Example: ap-northeast-2
+aws_region = "ap-northeast-2"
+
+# AWS IAM Identity Center ID (from metadata entityID)
+# Format: d-xxxxxxxxxx (e.g., d-9b6753d2be)
+# Found in: entityID="https://REGION.signin.aws.amazon.com/platform/saml/THIS_VALUE"
+aws_identity_center_id = "d-xxxxxxxxxx"
+
+# AWS ACS UUID (from metadata AssertionConsumerService Location)
+# Found in: Location="https://REGION.signin.aws.amazon.com/platform/saml/acs/THIS_VALUE"
+aws_acs_uuid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# AWS IAM Identity Center domain for user portal
 # Format: d-xxxxxxxxxx.awsapps.com
 aws_identity_center_domain = "d-xxxxxxxxxx.awsapps.com"
 

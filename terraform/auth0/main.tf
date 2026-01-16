@@ -44,8 +44,23 @@ variable "github_client_secret" {
   sensitive   = true
 }
 
+variable "aws_region" {
+  description = "AWS region (e.g., ap-northeast-2)"
+  type        = string
+}
+
+variable "aws_identity_center_id" {
+  description = "AWS IAM Identity Center ID from SAML metadata entityID (e.g., d-9b6753d2be)"
+  type        = string
+}
+
+variable "aws_acs_uuid" {
+  description = "AWS ACS UUID from SAML metadata AssertionConsumerService Location"
+  type        = string
+}
+
 variable "aws_identity_center_domain" {
-  description = "AWS IAM Identity Center domain (e.g., d-xxxxxxxxxx.awsapps.com)"
+  description = "AWS IAM Identity Center domain for user portal (e.g., d-xxxxxxxxxx.awsapps.com)"
   type        = string
 }
 
@@ -76,6 +91,12 @@ resource "auth0_connection_clients" "github_aws" {
   enabled_clients = [auth0_client.aws_identity_center.id]
 }
 
+# Local values for AWS SAML URLs
+locals {
+  aws_saml_audience = "https://${var.aws_region}.signin.aws.amazon.com/platform/saml/${var.aws_identity_center_id}"
+  aws_saml_acs_url  = "https://${var.aws_region}.signin.aws.amazon.com/platform/saml/acs/${var.aws_acs_uuid}"
+}
+
 # AWS IAM Identity Center SAML Application
 resource "auth0_client" "aws_identity_center" {
   name        = "AWS IAM Identity Center"
@@ -83,14 +104,14 @@ resource "auth0_client" "aws_identity_center" {
   app_type    = "regular_web"
 
   callbacks = [
-    "https://${var.aws_identity_center_domain}/start/saml2/acs"
+    local.aws_saml_acs_url
   ]
 
   allowed_logout_urls = [
     "https://${var.aws_identity_center_domain}/start"
   ]
 
-  is_first_party = true
+  is_first_party  = true
   oidc_conformant = false
 }
 
@@ -98,9 +119,8 @@ resource "auth0_client" "aws_identity_center" {
 resource "auth0_client_addon_saml" "aws" {
   client_id = auth0_client.aws_identity_center.id
 
-  audience    = "https://signin.aws.amazon.com/saml"
-  recipient   = "https://${var.aws_identity_center_domain}/start/saml2/acs"
-  destination = "https://${var.aws_identity_center_domain}/start/saml2/acs"
+  audience    = local.aws_saml_audience
+  destination = local.aws_saml_acs_url
 
   mappings = {
     email    = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
@@ -108,20 +128,20 @@ resource "auth0_client_addon_saml" "aws" {
     nickname = "https://aws.amazon.com/SAML/Attributes/RoleSessionName"
   }
 
-  name_identifier_format = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
-  
+  name_identifier_format = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+
   name_identifier_probes = [
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
   ]
 
   signature_algorithm = "rsa-sha256"
   digest_algorithm    = "sha256"
-  
+
   lifetime_in_seconds = 3600
   sign_response       = true
-  
+
   include_attribute_name_format = true
-  binding                        = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+  binding                       = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
 }
 
 # Auth0 Action for GitHub Groups
@@ -164,7 +184,17 @@ output "auth0_saml_sso_url" {
   value       = "https://${var.auth0_domain}/samlp/${auth0_client.aws_identity_center.client_id}"
 }
 
-output "aws_callback_url" {
-  description = "AWS IAM Identity Center callback URL"
-  value       = "https://${var.aws_identity_center_domain}/start/saml2/acs"
+output "aws_saml_audience" {
+  description = "AWS SAML audience (entityID from AWS metadata)"
+  value       = local.aws_saml_audience
+}
+
+output "aws_saml_acs_url" {
+  description = "AWS SAML ACS URL (AssertionConsumerService Location from AWS metadata)"
+  value       = local.aws_saml_acs_url
+}
+
+output "aws_user_portal_url" {
+  description = "AWS IAM Identity Center user portal URL"
+  value       = "https://${var.aws_identity_center_domain}/start"
 }

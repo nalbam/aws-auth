@@ -36,11 +36,12 @@ SAML 구성 대화상자에서:
 AWS IAM Identity Center를 사용하는 경우 **ACS(Assertion Consumer Service) URL**을 입력합니다:
 
 ```
-https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
+https://YOUR_REGION.signin.aws.amazon.com/platform/saml/acs/YOUR_ACS_ID
 ```
 
-- `YOUR_IDENTITY_CENTER_DOMAIN`: AWS IAM Identity Center 도메인 (예: `d-1234567890`)
-- 이 URL은 3단계에서 AWS IAM Identity Center 구성 시 확인할 수 있습니다
+- `YOUR_REGION`: AWS 리전 (예: `ap-northeast-2`)
+- `YOUR_ACS_ID`: AWS에서 제공하는 ACS UUID
+- 이 URL은 3단계에서 AWS IAM Identity Center의 SAML 메타데이터에서 확인할 수 있습니다
 
 > **중요**: 처음에는 플레이스홀더 값을 입력하고, 3단계 완료 후 실제 URL로 업데이트하세요.
 
@@ -48,19 +49,19 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 
 ```json
 {
-  "audience": "https://signin.aws.amazon.com/saml",
+  "audience": "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/d-9b6753d2be",
+  "destination": "https://ap-northeast-2.signin.aws.amazon.com/platform/saml/acs/49434e2d4805a7b2-f152-44d2-9f6b-62b379a23c28",
   "mappings": {
     "email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
     "name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
     "nickname": "https://aws.amazon.com/SAML/Attributes/RoleSessionName"
   },
-  "nameIdentifierFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+  "nameIdentifierFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
   "nameIdentifierProbes": [
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
   ],
   "signatureAlgorithm": "rsa-sha256",
   "digestAlgorithm": "sha256",
-  "destination": "https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs",
   "lifetimeInSeconds": 3600,
   "signResponse": true,
   "includeAttributeNameFormat": true,
@@ -68,7 +69,9 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 }
 ```
 
-**중요**: `YOUR_IDENTITY_CENTER_DOMAIN`을 실제 AWS IAM Identity Center 도메인으로 교체하세요 (예: `d-1234567890`).
+**중요**: 위 값들을 AWS IAM Identity Center SAML 메타데이터의 실제 값으로 교체하세요:
+- `audience`: 메타데이터의 `entityID` 값
+- `destination`: 메타데이터의 `AssertionConsumerService Location` 값
 
 4. **Enable**을 클릭한 후 **Save**
 
@@ -107,11 +110,13 @@ https://YOUR_IDENTITY_CENTER_DOMAIN.awsapps.com/start/saml2/acs
 
 ## 3단계 완료 후 업데이트
 
-AWS IAM Identity Center 구성(3단계) 완료 후 다음 값을 업데이트해야 합니다:
+AWS IAM Identity Center 구성(3단계) 완료 후 AWS에서 SAML 메타데이터를 다운로드하여 다음 값을 업데이트해야 합니다:
 
-1. **Application Callback URL**: 실제 ACS URL로 변경
-2. **Settings JSON**: `audience`와 `destination` 값을 실제 값으로 변경
-3. **Allowed Callback URLs**: 실제 ACS URL로 업데이트
+1. **Application Callback URL**: 메타데이터의 `AssertionConsumerService Location` 값으로 변경
+2. **Settings JSON**:
+   - `audience`: 메타데이터의 `entityID` 값으로 변경
+   - `destination`: 메타데이터의 `AssertionConsumerService Location` 값으로 변경
+3. **Allowed Callback URLs**: ACS URL로 업데이트
 
 ## SAML 어설션 예제
 
